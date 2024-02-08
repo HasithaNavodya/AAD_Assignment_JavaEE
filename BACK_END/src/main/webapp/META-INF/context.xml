@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Context path="/">
-    <Resource name="jdbc/PosAssignment"
+    <Resource name="jdbc/PosAssignmentEe"
               auth="Container"
               type="javax.sql.DataSource"
               maxTotal="100"
@@ -9,5 +9,5 @@
               username="root"
               password="1234"
               driverClassName="com.mysql.cj.jdbc.Driver"
-              url="jdbc:mysql://localhost:3306/pos_assignment_javaee"/>
+              url="jdbc:mysql://localhost:3306/pos_assingment"/>
 </Context>

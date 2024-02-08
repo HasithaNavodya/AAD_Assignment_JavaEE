@@ -2,8 +2,11 @@ package lk.ijse.gdse66.api;
 
 import jakarta.json.bind.Jsonb;
 import jakarta.json.bind.JsonbBuilder;
+import jakarta.json.bind.JsonbException;
 import lk.ijse.gdse66.bo.BOFactory;
+//import lk.ijse.gdse66.bo.custom.OrderBO;
 import lk.ijse.gdse66.bo.custom.OrderBO;
+import lk.ijse.gdse66.dto.OrderDTO;
 
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -46,22 +49,6 @@ public class OrderServlet extends HttpServlet {
                 resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
             }
         }
-
-//            String id = req.getParameter("id");
-//            try (Connection connection = connectionPool.getConnection()){
-//                OrderDTO orderDTO = orderBO.getOrderById(connection, id);
-//
-//                Jsonb jsonb = JsonbBuilder.create();
-//                String json = jsonb.toJson(orderDTO);
-//                resp.getWriter().write(json);
-//            } catch (JsonbException e) {
-//                resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
-//            } catch (IOException e) {
-//                resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
-//            } catch (SQLException e) {
-//                resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
-//            }
-//        }
     }
 
     @Override

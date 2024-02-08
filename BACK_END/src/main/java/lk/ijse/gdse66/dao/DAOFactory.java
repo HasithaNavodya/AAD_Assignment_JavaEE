@@ -1,9 +1,6 @@
 package lk.ijse.gdse66.dao;
 
-import lk.ijse.gdse66.dao.custom.impl.CustomerDAOImpl;
-import lk.ijse.gdse66.dao.custom.impl.ItemDAOImpl;
-import lk.ijse.gdse66.dao.custom.impl.OrderDAOImpl;
-import lk.ijse.gdse66.dao.custom.impl.OrderDetailDAOImpl;
+import lk.ijse.gdse66.dao.custom.impl.*;
 
 public class DAOFactory {
 

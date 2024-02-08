@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="exploded-war" name="AAD_Assignment_JavaEE:war exploded">
+    <output-path>$PROJECT_DIR$/out/artifacts/AAD_Assignment_JavaEE_war_exploded</output-path>
+    <root id="root">
+      <element id="javaee-facet-resources" facet="AAD_Assignment_JavaEE/web/Web" />
+    </root>
+  </artifact>
+</component>

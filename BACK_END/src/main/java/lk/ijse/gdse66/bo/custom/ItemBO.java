@@ -1,6 +1,7 @@
 package lk.ijse.gdse66.bo.custom;
 
 import lk.ijse.gdse66.bo.SuperBO;
+import lk.ijse.gdse66.dto.ItemDTO;
 
 import java.sql.Connection;
 import java.sql.SQLException;
