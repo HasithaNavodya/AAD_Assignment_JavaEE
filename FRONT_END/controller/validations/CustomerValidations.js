@@ -1,6 +1,6 @@
 
 const Cust_ID_Check = /^(C00-)[0-9]{3}$/;
-const Cust_Name_Check = /^[A-Za-z ]{5,}$/;
+const Cust_Name_Check = /^[A-Za-z ]{4,}$/;
 const Cust_Address_Check = /^[A-Za-z0-9 ]{5,}$/;
 const Cust_Salary_Check = /^[0-9]{2,}([.][0-9]{2})?$/;
 
@@ -10,7 +10,7 @@ custArray.push({field: $("#CustomertxtName"), regEx: Cust_Name_Check});
 custArray.push({field: $("#CustomertxtAddress"), regEx: Cust_Address_Check});
 custArray.push({field: $("#CustomertxtSalary"), regEx: Cust_Salary_Check});
 
-function clearCustInputFields() {
+function clearCustomerInputFields() {
     $("#CustomertxtID,#CustomertxtName,#CustomertxtAddress,#CustomertxtSalary").val("");
     $("#CustomertxtID,#CustomertxtName,#CustomertxtAddress,#CustomertxtSalary").css("border", "1px solid #ced4da");
     $("#CustomertxtID").focus();
@@ -25,19 +25,13 @@ function setBtn() {
 
     if (checkAll()) {
         $("#btnSaveCustomer").prop("disabled", false);
-    } else {
-        $("#btnSaveCustomer").prop("disabled", true);
-    }
-
-    let id = $("#CustomertxtID").val();
-    if (searchCustomer(id) == undefined) {
-        $("#btnCusDelete").prop("disabled", true);
-        $("#btnUpdate").prop("disabled", true);
-    } else {
         $("#btnCusDelete").prop("disabled", false);
         $("#btnUpdate").prop("disabled", false);
+    } else {
+        $("#btnSaveCustomer").prop("disabled", true);
+        $("#btnCusDelete").prop("disabled", true);
+        $("#btnUpdate").prop("disabled", true);
     }
-
 }
 
 $("#CustomertxtID,#CustomertxtName,#CustomertxtAddress,#CustomertxtSalary").on("keydown keyup", function (e) {
