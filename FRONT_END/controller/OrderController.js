@@ -1,72 +1,97 @@
 // customer side
-
 let selectElement = document.getElementById("CustominputState");
 getAllCustomer();
 function getAllCustomer() {
-    customerDB.forEach(function(customer) {
-        let option = document.createElement("option");
-        option.value = customer.id;
-        option.textContent = customer.id;
-        selectElement.appendChild(option);
+    $.ajax({
+        url: "http://localhost:8080/app/customer?function=getAll",
+        method: "GET",
+        dataType: "json",
+        success: function (res) {
+            var rows = "";
+            $.each(res.data, function (index, c) {
+                let option = document.createElement("option");
+                option.value = c.id;
+                option.textContent = c.id;
+                selectElement.appendChild(option);
+            });
+        },
+        error: function (xhr, status, error) {
+            console.error("AJAX request failed:", status, error);
+        }
     });
 }
 
-let CustomerIdShirOrder;
 selectElement.addEventListener("change", function () {
     let selectedId = selectElement.value;
-    let selectedCustomer = customerDB.find(function(customer) {
-        return customer.id === selectedId;
+    $.ajax({
+        url: "http://localhost:8080/app/customer?function=getById&selectedId="+selectedId,
+        method: "GET",
+        dataType: "json",
+        success: function (customer) {
+            $("#custIdSetOrder").val(customer.id);
+            $("#custNameSetOrder").val(customer.name);
+            $("#custAddressSetOrder").val(customer.address);
+            $("#custSalarySetOrder").val(customer.salary);
+        },
+        error: function (xhr, status, error) {
+            console.error("AJAX request failed:", status, error);
+        }
     });
-    if (selectedCustomer) {
-        $("#custIdSetOrder").val(selectedCustomer.id);
-        $("#custNameSetOrder").val(selectedCustomer.name);
-        $("#custAddressSetOrder").val(selectedCustomer.address);
-        $("#custSalarySetOrder").val(selectedCustomer.salary);
-        CustomerIdShirOrder = selectedCustomer.id;
-    }
 });
 
-// item side
-getAllCustomercheck();
-function getAllCustomercheck() {
-    customerDB.forEach(function (customer) {
-        console.log(customer.id);
-        console.log(customer.name);
-        console.log(customer.salary);
-        console.log(customer.address);
+getAllItem();
+let selectItemElement = document.getElementById("IteminputState");
+function getAllItem() {
+    $.ajax({
+        url: "http://localhost:8080/app/item?function=getAll",
+        method: "GET",
+        dataType: "json",
+        success: function (res) {
+            var rows = "";
+            $.each(res.data, function (index, c) {
+                let option = document.createElement("option");
+                option.value = c.code;
+                option.textContent = c.code;
+                selectItemElement.appendChild(option);
+            });
+
+        },
+        error: function (xhr, status, error) {
+            console.error("AJAX request failed:", status, error);
+        }
     });
 }
 
-let selectItemElement = document.getElementById("IteminputState");
-let itemCode;
-let itemName;
-
-itemDB.forEach(function(item) {
-    let option = document.createElement("option");
-    option.value = item.code;
-    option.textContent = item.code;
-    selectItemElement.appendChild(option);
-});
 
 let itemCodetoOrder;
 let itemNametoOrder;
 let itemPricetoOrder;
 selectItemElement.addEventListener("change", function () {
-    let selectedId = selectItemElement.value;
-    let selectedItem = itemDB.find(function(item) {
-        return item.code === selectedId;
-    });
-    if (selectedItem) {
-        CheckQTY(selectedItem.qtyOnHand);
-        $("#ItemIdSetOrder").val(selectedItem.code);
-        $("#ItemNameSetOrder").val(selectedItem.description);
-        $("#ItemPriceSetOrder").val(selectedItem.unitPrice);
-        $("#ItemQTYSetOrder").val(selectedItem.qtyOnHand);
+    let selectedCode = selectItemElement.value;
+    $.ajax({
+        url: "http://localhost:8080/app/item?function=getById&selectedcode=" + selectedCode,
+        method: "GET",
+        dataType: "json",
+        success: function (item) {
+            console.log(item); // Debugging: Check the received item object
+            if (item) {
+                $("#ItemIdSetOrder").val(item.code);
+                $("#ItemNameSetOrder").val(item.description);
+                $("#ItemPriceSetOrder").val(item.price);
+                $("#ItemQTYSetOrder").val(item.qty);
 
-        itemCodetoOrder = selectedItem.code;
-        itemNametoOrder = selectedItem.description;
-        itemPricetoOrder = selectedItem.unitPrice;
-    }
+                itemCodetoOrder = item.code;
+                itemNametoOrder = item.description;
+                itemPricetoOrder = item.price;
+            } else {
+                // Handle case where no item is found with the provided code
+                console.error("Item not found with code: " + selectedCode);
+            }
+        },
+        error: function (xhr, status, error) {
+            console.error("AJAX request failed:", status, error);
+        }
+    });
 });
 
 let ChoiceElementOrder = document.getElementById("ChoiceQTYOrder");
@@ -94,13 +119,11 @@ function getAllItemSetTableArray() {
     $("#TBodyOrder").empty()
     for (let i = 0; i < defaultArrayToSecondItem.length; i++) {
         let id = defaultArrayToSecondItem[i].itemCode;
-        let name = defaultArrayToSecondItem[i].itemName;
         let price = defaultArrayToSecondItem[i].itemPrice;
         let QTY = defaultArrayToSecondItem[i].itemQTYChoice;
         let total = defaultArrayToSecondItem[i].totalPrice;
         let row = `<tr>
                      <td>${id}</td>
-                     <td>${name}</td>
                      <td>${price}</td>
                      <td>${QTY}</td>
                      <td>${total}</td>
@@ -145,12 +168,6 @@ function ItemQTYLower(orderIDstor) {
                 let lowQTYUpdate = itemQtyOnHand - defaultArrayItemQTY;
 
                 itemDB[k].qtyOnHand = lowQTYUpdate;
-
-                // console.log("Code: " + itemDB[k].code);
-                // console.log("Description: " + itemDB[k].description);
-                // console.log("Qty on Hand: " + lowQTYUpdate);
-                // console.log("Unit Price: " + itemDB[k].unitPrice);
-                // console.log("\n");
             }
         }
     }
@@ -163,6 +180,10 @@ function setOrderValue(orderIDstor) {
     let orderId = orderIDstor;
     let date = $("#date").val();
     let custId = $("#custIdSetOrder").val();
+    let discount = $("#discount").val();
+    let finalPrice = $("#lableTotPrice").text();
+    let orderDetailssss = [];
+
 
     let order = {
         oid: orderId,
@@ -185,70 +206,86 @@ function setOrderValue(orderIDstor) {
                 unitPrice: total
             }
         );
+
+        let orderDetailArrayobject = {
+            order_id: orderId,
+            item_code: id,
+            unit_price: total,
+            qty: QTY
+        }
+        orderDetailssss.push(orderDetailArrayobject);
+
+        let orderObj = {
+            order_id: orderId,
+            date: date,
+            cust_id: custId,
+            discount: discount,
+            total: finalPrice,
+            order_list: orderDetailssss
+        }
+        let jsonObj = JSON.stringify(orderObj);
+        $.ajax({
+            url: "http://localhost:8080/app/order",
+            method: "post",
+            contentType: "application/json",
+            data: jsonObj,
+            success: function (resp, textStatus, jqxhr) {
+                alert("Order placed successfully");
+
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                console.log(jqXHR);
+                alert("Something went wrong. Order not placed")
+            }
+        });
+
+
     }
 
     orderDB.push(order);
     defaultArrayToSecondItem.length=0;
-    // orderDB.forEach(function (order) {
-    //     console.log("Order ID: " + order.oid);
-    //     console.log("Date: " + order.date);
-    //     console.log("Customer ID: " + order.customerID);
-    //
-    //     order.orderDetails.forEach(function (detail) {
-    //         console.log("Order Detail Code: " + detail.oid);
-    //         console.log("Order Detail Code: " + detail.code);
-    //         console.log("Quantity: " + detail.qty);
-    //         console.log("Unit Price: " + detail.unitPrice);
-    //     });
-    // });
-
-    // for (let i = 0; i < secondRoundArry.length; i++) {
-    //     console.log(secondRoundArry[i]);
-    // }
     allemtyset();
 }
 
 //get order details
 
 // const totalArry = [];
-let ChoiceElement6 = document.getElementById("OrderId");
-ChoiceElement6.addEventListener("keyup", function () {
-    let inputOrd = ChoiceElement6.value;
-    $("#TBodyOrder").empty();
-    for (let i = 0; i < orderDB.length; i++) {
-        let order = orderDB[i];
-        if (order.oid === inputOrd) {
-            let orderDetails = order.orderDetails;
-            let totalOrderPrice = 0;
-
-            for (let j = 0; j < orderDetails.length; j++) {
-                let code = orderDetails[j].code;
-                let QTY = orderDetails[j].qty;
-                let unitPrice = orderDetails[j].unitPrice;
-
-                for (let k = 0; k < itemDB.length; k++) {
-                    let realItemid = itemDB[k].code;
-
-                    if (realItemid === code) {
-                        let realItemname = itemDB[k].description;
-                        let realItemPrice = itemDB[k].unitPrice;
-                        let row = `<tr>
-                                <td>${code}</td>
-                                <td>${realItemname}</td>
-                                <td>${realItemPrice}</td>
-                                <td>${QTY}</td>
-                                <td>${unitPrice}</td>
-                            </tr>`;
-                        $("#TBodyOrder").append(row);
-                        totalOrderPrice += unitPrice;
-                    }
-                }
-            }
-            $("#lableTotPrice").text(totalOrderPrice);
-            $("#lableSubTotal").text(totalOrderPrice);
-        }
-    }
-});
+// let ChoiceElement6 = document.getElementById("OrderId");
+// ChoiceElement6.addEventListener("keyup", function () {
+// let inputOrd = ChoiceElement6.value;
+// $("#TBodyOrder").empty();
+//     for (let i = 0; i < orderDB.length; i++) {
+//         let order = orderDB[i];
+//         if (order.oid === inputOrd) {
+//             let orderDetails = order.orderDetails;
+//             let totalOrderPrice = 0;
+//
+//             for (let j = 0; j < orderDetails.length; j++) {
+//                 let code = orderDetails[j].code;
+//                 let QTY = orderDetails[j].qty;
+//                 let unitPrice = orderDetails[j].unitPrice;
+//
+//                 for (let k = 0; k < itemDB.length; k++) {
+//                 let realItemid = itemDB[k].code;
+//
+//                     if (realItemid === code) {
+//                         let realItemPrice = itemDB[k].unitPrice;
+//                         let row = `<tr>
+//                             <td>${code}</td>
+//                             <td>${realItemPrice}</td>
+//                             <td>${QTY}</td>
+//                             <td>${unitPrice}</td>
+//                         </tr>`;
+//                         $("#TBodyOrder").append(row);
+//                         totalOrderPrice += unitPrice;
+//                     }
+//                 }
+//             }
+//             $("#lableTotPrice").text(totalOrderPrice);
+//             $("#lableSubTotal").text(totalOrderPrice);
+//         }
+//     }
+// });
 
 //    delete table value
 $(document).ready(function () {
@@ -273,20 +310,3 @@ $(document).ready(function () {
 
     });
 });
-
-
-// $('#clickTable>tr').click(function () {
-//     alert("fdgr")
-//     // $("#CustomertxtID,#CustomertxtName,#CustomertxtAddress,#CustomertxtSalary").css("border", "2px solid blue");
-//     // let id = $(this).children().eq(0).text();
-//     // let name = $(this).children().eq(1).text();
-//     // let address = $(this).children().eq(2).text();
-//     // let salary = $(this).children().eq(3).text();
-//     //
-//     // $("#CustomertxtID").val(id);
-//     // $("#CustomertxtName").val(name);
-//     // $("#CustomertxtAddress").val(address);
-//     // $("#CustomertxtSalary").val(salary);
-//
-//
-// })

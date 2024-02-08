@@ -6,8 +6,6 @@ import jakarta.json.bind.JsonbBuilder;
 import jakarta.json.bind.JsonbException;
 import lk.ijse.gdse66.bo.BOFactory;
 import lk.ijse.gdse66.bo.custom.CustomerBO;
-import lk.ijse.gdse66.dto.CustomerDTO;
-import lk.ijse.gdse66.dto.OrderDTO;
 
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -19,7 +17,9 @@ import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.ArrayList;
 
 @WebServlet(name = "customer", urlPatterns = "/customer")

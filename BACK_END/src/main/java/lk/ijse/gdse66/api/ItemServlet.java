@@ -1,13 +1,9 @@
 package lk.ijse.gdse66.api;
 
 import jakarta.json.*;
-import jakarta.json.bind.Jsonb;
-import jakarta.json.bind.JsonbBuilder;
 import jakarta.json.bind.JsonbException;
 import lk.ijse.gdse66.bo.BOFactory;
 import lk.ijse.gdse66.bo.custom.ItemBO;
-import lk.ijse.gdse66.dto.CustomerDTO;
-import lk.ijse.gdse66.dto.ItemDTO;
 
 import javax.naming.InitialContext;
 import javax.naming.NamingException;

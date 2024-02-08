@@ -1,14 +1,45 @@
 //load all Item
-getAllItem();
-
 //Save Item
-$("#btnSaveItem").click(function () {
-    if (checkAllItem()){
-        saveItem();
-    }else{
-        alert("Error");
-    }
+$(document).ready(function () {
+    getAllItems(); // Corrected function name
+
+    $("#btnSaveItem").click(function () {
+        if (checkAllItem()) {
+            saveItem();
+        } else {
+            alert("Error: Please check all fields");
+        }
+    });
+
+    $("#btnItemClear").click(function () {
+        clearItemInputFields();
+    });
 });
+
+function getAllItems() {
+    $("#ItemTbl").empty();
+
+    $.ajax({
+        url: "http://localhost:8080/app/item?function=getAll",
+        method: "GET",
+        dataType: "json",
+        success: function (res) {
+            var rows = "";
+            $.each(res.data, function (index, c) {
+                let code = c.code;
+                let description = c.description;
+                let price = c.price;
+                let qty = c.qty;
+                let row = "<tr><td>" + code + "</td><td>" + description + "</td><td>" + price + "</td><td>" + qty + "</td></tr>";
+                rows += row;
+            });
+            $("#ItemTbl").append(rows);
+        },
+        error: function (xhr, status, error) {
+            console.error("AJAX request failed:", status, error);
+        }
+    });
+}
 
 // Save Item
 function saveItem() {
@@ -22,7 +53,7 @@ function saveItem() {
         description: description,
         price: price,
         quantity: quantity
-    }
+    };
 
     $.ajax({
         url: "http://localhost:8080/app/item",
@@ -30,15 +61,14 @@ function saveItem() {
         contentType: "application/json",
         data: JSON.stringify(itemObj),
         success: function (resp, textStatus, jqxhr) {
-            alert("customer saved successfully");
-            // getAllCustomer();
+            alert("Item saved successfully");
+            getAllItems();
         },
         error: function (jqXHR, textStatus, errorThrown) {
-            if(jqXHR.status==409){
+            if(jqXHR.status == 409) {
                 alert("Duplicate values. Please check again");
-                return;
-            }else{
-                alert("Customer not added");
+            } else {
+                alert("Error: Item not added");
             }
         }
     });
@@ -56,7 +86,7 @@ $("#btnItemDelete").click(function () {
             data:formData,
             success: function (res) {
                 alert("customer remove");
-                getAllCustomer()
+                getAllItems()
                 console.log(res)
             },
             error: function (error) {
@@ -87,20 +117,15 @@ $("#btnItemUpdate").click(function () {
         data:JSON.stringify(ItemOB),
         dataType:"json",
         success: function (res) {
-            getAllCustomer()
-            alert("customer update");
+            alert("customer updated");
+            getAllItems()
+
         },
         error: function (error) {
             let message = JSON.parse(error.responseText).message;
             alert("customer not update");
         },
     });
-});
-
-//clear textField
-$("#btnItemClear").click(function () {
-    clearItemInputFields();
-
 });
 
 $(document).on('click', '#ItemTbl > tr', function() {
@@ -114,31 +139,6 @@ $(document).on('click', '#ItemTbl > tr', function() {
     $("#ItemtxtQuantity").val(qty);
 });
 
-
-function getAllItem() {
-    $("#ItemTbl").empty();
-
-    $.ajax({
-        url: "http://localhost:8080/app/item",
-        method: "GET",
-        dataType: "json",
-        success: function (res) {
-            var rows = "";
-            $.each(res.data, function (index, c) {
-                let code = c.code;
-                let description = c.description;
-                let salary = c.salary;
-                let qty = c.qty;
-                let row = "<tr><td>" + code + "</td><td>" + description + "</td><td>" + salary + "</td><td>" + qty + "</td></tr>";
-                rows += row;
-            });
-            $("#ItemTbl").append(rows);
-        },
-        error: function (xhr, status, error) {
-            console.error("AJAX request failed:", status, error);
-        }
-    });
-}
 
 
 

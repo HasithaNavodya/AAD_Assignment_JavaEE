@@ -2,8 +2,6 @@ package lk.ijse.gdse66.dto;
 
 import lombok.*;
 
-import java.math.BigDecimal;
-
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter

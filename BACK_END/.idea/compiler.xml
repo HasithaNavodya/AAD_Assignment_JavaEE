@@ -8,6 +8,7 @@
         <outputRelativeToContentRoot value="true" />
         <module name="back_end" />
         <module name="pos_back_end" />
+        <module name="BACK_END" />
       </profile>
     </annotationProcessing>
   </component>

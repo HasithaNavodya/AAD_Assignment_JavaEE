@@ -2,7 +2,6 @@ package lk.ijse.gdse66.dao.custom.impl;
 
 import lk.ijse.gdse66.dao.custom.CustomerDAO;
 import lk.ijse.gdse66.dao.util.CrudUtil;
-import lk.ijse.gdse66.entity.Customer;
 
 import java.sql.Connection;
 import java.sql.ResultSet;

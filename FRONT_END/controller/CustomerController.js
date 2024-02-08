@@ -1,76 +1,27 @@
 
-getAllCustomer();
+$(document).ready(function () {
+    getAllCustomers(); // Corrected function name
 
-$("#btnSaveCustomer").click(function () {
-    if (checkAll()){
-        saveCustomer();
-    }else{
-        alert("Error");
-    }
-});
-
-function saveCustomer() {
-    let id = $("#CustomertxtID").val();
-    let name = $("#CustomertxtName").val();
-    let address = $("#CustomertxtAddress").val();
-    let salary = $("#CustomertxtSalary").val();
-
-    let customObj ={
-        id: id,
-        name: name,
-        address: address,
-        salary: salary
-    }
-
-    $.ajax({
-        url: "http://localhost:8080/app/customer",
-        method: "post",
-        contentType: "application/json",
-        data: JSON.stringify(customObj),
-        success: function (resp, textStatus, jqxhr) {
-            alert("customer saved successfully");
-            getAllCustomer();
-        },
-        error: function (jqXHR, textStatus, errorThrown) {
-            if(jqXHR.status==409){
-                alert("Duplicate values. Please check again");
-                return;
-            }else{
-                alert("Customer not added");
-            }
+    $("#btnSaveCustomer").click(function () {
+        if (checkAll()) {
+            saveCustomer();
+        } else {
+            alert("Error");
         }
     });
 
-}
+    // Other event handlers...
 
-$('#btnCusDelete').click(function () {
-    let formData = $('#CustomerForm').serialize()
-    let id = $('#CustomertxtID').val();
-    let consent = confirm("Do you want to delete.?");
-    if (consent) {
-        $.ajax({
-            url: "http://localhost:8080/app/customer?id="+id,
-            method: "delete",
-            data:formData,
-            success: function (res) {
-                alert("customer remove");
-                getAllCustomer()
-                console.log(res)
-            },
-            error: function (error) {
-                let message = JSON.parse(error.responseText).message
-                alert(message)
-            },
-        });
-    }
-})
+    $('#btnCustomerClear').click(function () {
+        clearCustomerInputFields();
+    });
+});
 
-
-function getAllCustomer() {
+function getAllCustomers() {
     $("#customTbl").empty();
 
     $.ajax({
-        url: "http://localhost:8080/app/customer",
+        url: "http://localhost:8080/app/customer?function=getAll",
         method: "GET",
         dataType: "json",
         success: function (res) {
@@ -91,7 +42,58 @@ function getAllCustomer() {
     });
 }
 
+function saveCustomer() {
+    let id = $("#CustomertxtID").val();
+    let name = $("#CustomertxtName").val();
+    let address = $("#CustomertxtAddress").val();
+    let salary = $("#CustomertxtSalary").val();
 
+    let customObj ={
+        id: id,
+        name: name,
+        address: address,
+        salary: salary
+    };
+
+    $.ajax({
+        url: "http://localhost:8080/app/customer",
+        method: "post",
+        contentType: "application/json",
+        data: JSON.stringify(customObj),
+        success: function (resp, textStatus, jqxhr) {
+            alert("Customer saved successfully");
+            getAllCustomers();
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+            if(jqXHR.status == 409){
+                alert("Duplicate values. Please check again");
+            } else {
+                alert("Error: Customer not added");
+            }
+        }
+    });
+}
+
+$('#btnCusDelete').click(function () {
+    let formData = $('#CustomerForm').serialize()
+    let id = $('#CustomertxtID').val();
+    let consent = confirm("Do you want to delete.?");
+    if (consent) {
+        $.ajax({
+            url: "http://localhost:8080/app/customer?id="+id,
+            method: "delete",
+            data:formData,
+            success: function (res) {
+                alert("customer remove");
+                getAllCustomers()
+            },
+            error: function (error) {
+                let message = JSON.parse(error.responseText).message
+                alert(message)
+            },
+        });
+    }
+})
 
 $('#btnUpdate').click(function () {
 
@@ -113,7 +115,7 @@ $('#btnUpdate').click(function () {
         data:JSON.stringify(CustomerOB),
         dataType:"json",
         success: function (res) {
-            getAllCustomer()
+            getAllCustomers()
             alert("customer update");
         },
         error: function (error) {
@@ -152,7 +154,3 @@ $(document).on('click', '#customTbl > tr', function() {
     $("#CustomertxtSalary").val(salary);
 
 });
-
-$('#btnCustomerClear').click(function () {
-    clearCustomerInputFields();
-})

@@ -1,11 +1,43 @@
-let orderNumberCounter = 1;
 let orderIDstor;
-generateOrderID();
-function generateOrderID() {
-    const orderID = `ORD-${String(orderNumberCounter).padStart(3, '0')}`;
-    orderNumberCounter++;
-    orderIDstor = orderID;
-    $("#OrderId").val(orderID);
+generateOrderIDfriest();
+function generateOrderIDfriest() {
+    $.ajax({
+        url: "http://localhost:8080/app/order?function=getLastId",
+        method: "get",
+        success: function (resp, textStatus, jqxhr) {
+            console.log(resp);
+            if(resp == "no_ids"){
+                $("#OrderId").val("ORD-001");
+                orderIDstor = "ORD-001";
+            }else{
+                let lastNumber = parseInt(resp.match(/\d+$/)[0]);
+                if (!isNaN(lastNumber)) {
+                    let nextNumber = (lastNumber + 1).toString().padStart(3, '0');
+                    let nextOrderID = resp.replace(/\d+$/, nextNumber);
+                    $("#OrderId").val(nextOrderID);
+                    orderIDstor = nextOrderID;
+                } else {
+                    console.log("Invalid response format");
+                }
+            }
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+            console.error("Error - generateNextOrderId");
+            console.error(jqXHR);
+        }
+    });
+}
+
+function generateOrderIDsecond() {
+    let lastNumber = parseInt(orderIDstor.match(/\d+$/)[0]);
+    if (!isNaN(lastNumber)) {
+        let nextNumber = (lastNumber + 1).toString().padStart(3, '0');
+        let nextOrderID = orderIDstor.replace(/\d+$/, nextNumber);
+        $("#OrderId").val(nextOrderID);
+        orderIDstor = nextOrderID;
+    } else {
+        console.log("Invalid response format");
+    }
 }
 
 let typeOrdIdOrderPlace = document.getElementById("OrderId");
@@ -185,7 +217,7 @@ function checkValidationPurch() {
 }
 
 $("#addToCardOrder").click(function () {
-        checkValidation();
+    checkValidation();
 });
 
 let inputCash = document.getElementById("inputCash");
@@ -278,7 +310,7 @@ function allemtyset() {
     $("#lableSubTotal").text("0");
     $("#ChoiceQTYOrder").val("");
     $("#TBodyOrder").empty();
-    generateOrderID();
+    generateOrderIDsecond();
     alert("order placed");
 }
 

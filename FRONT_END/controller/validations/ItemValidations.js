@@ -25,19 +25,13 @@ function setBtnItem() {
 
     if (checkAllItem()) {
         $("#btnSaveItem").prop("disabled", false);
-    } else {
-        $("#btnSaveItem").prop("disabled", true);
-    }
-
-    let id = $("#ItemtxtID").val();
-    if (searchItem(id) == undefined) {
-        $("#btnItemDelete").prop("disabled", true);
-        $("#btnItemUpdate").prop("disabled", true);
-    } else {
         $("#btnItemDelete").prop("disabled", false);
         $("#btnItemUpdate").prop("disabled", false);
+    } else {
+        $("#btnSaveItem").prop("disabled", true);
+        $("#btnItemDelete").prop("disabled", true);
+        $("#btnItemUpdate").prop("disabled", true);
     }
-
 }
 
 $("#ItemtxtID,#ItemtxtDescription,#ItemtxtPrice,#ItemtxtQuantity").on("keydown keyup", function (e) {
@@ -64,7 +58,6 @@ $("#ItemtxtID,#ItemtxtDescription,#ItemtxtPrice,#ItemtxtQuantity").on("keydown k
         }
     }
 });
-
 
 function checkValidations(object) {
     if (object.regEx.test(object.field.val())) {
