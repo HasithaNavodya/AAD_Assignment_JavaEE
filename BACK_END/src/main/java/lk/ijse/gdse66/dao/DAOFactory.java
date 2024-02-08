@@ -1,7 +1,6 @@
 package lk.ijse.gdse66.dao;
 
-import lk.ijse.gdse66.dao.custom.impl.CustomerDAOImpl;
-import lk.ijse.gdse66.dao.custom.impl.ItemDAOImpl;
+import lk.ijse.gdse66.dao.custom.impl.*;
 
 public class DAOFactory {
 
@@ -25,10 +24,10 @@ public class DAOFactory {
                 return (T) new CustomerDAOImpl();
             case ITEM_DAO:
                 return (T) new ItemDAOImpl();
-//            case ORDER_DAO:
-//                return (T) new OrderDAOImpl();
-//            case ORDER_DETAILS_DAO:
-//                return (T) new OrderDetailDAOImpl();
+            case ORDER_DAO:
+                return (T) new OrderDAOImpl();
+            case ORDER_DETAILS_DAO:
+                return (T) new OrderDetailDAOImpl();
 //            case QUERY_DAO:
 //                return (T) new QueryDAOImpl();
             default:

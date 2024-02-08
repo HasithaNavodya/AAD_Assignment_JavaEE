@@ -49,21 +49,16 @@ public class CustomerDAOImpl implements CustomerDAO {
 
     @Override
     public Customer findBy(Connection connection, String id) throws SQLException {
-        return null;
-    }
+        String sql = "SELECT * FROM customer WHERE id=?";
+        Customer customer = new Customer();
+        ResultSet rs = CrudUtil.execute(connection, sql, id);
 
-//    @Override
-//    public Customer findBy(Connection connection, String id) throws SQLException {
-//        String sql = "SELECT * FROM customer WHERE id=?";
-//        Customer customer = new Customer();
-//        ResultSet rs = CrudUtil.execute(connection, sql, id);
-//
-//        if(rs.next()) {
-//            customer.setId(rs.getString(1));
-//            customer.setName(rs.getString(2));
-//            customer.setAddress(rs.getString(3));
-//            customer.setContact(rs.getString(4));
-//        }
-//        return customer;
-//    }
+        if(rs.next()) {
+            customer.setId(rs.getString(1));
+            customer.setName(rs.getString(2));
+            customer.setAddress(rs.getString(3));
+            customer.setSalary(rs.getDouble(4));
+        }
+        return customer;
+    }
 }

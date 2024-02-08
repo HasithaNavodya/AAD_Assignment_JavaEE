@@ -1,10 +1,13 @@
 package lk.ijse.gdse66.api;
 
 import jakarta.json.*;
+import jakarta.json.bind.Jsonb;
+import jakarta.json.bind.JsonbBuilder;
 import jakarta.json.bind.JsonbException;
 import lk.ijse.gdse66.bo.BOFactory;
 import lk.ijse.gdse66.bo.custom.CustomerBO;
 import lk.ijse.gdse66.dto.CustomerDTO;
+import lk.ijse.gdse66.dto.OrderDTO;
 
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -16,9 +19,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.SQLIntegrityConstraintViolationException;
+import java.sql.*;
 import java.util.ArrayList;
 
 @WebServlet(name = "customer", urlPatterns = "/customer")
@@ -57,40 +58,63 @@ public class CustomerServlet extends HttpServlet {
         }
     }
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        try (Connection connection = connectionPool.getConnection()) {
-            // Use the connection to interact with the database
-            ArrayList<CustomerDTO> customerDTOList = customerBO.getAllCustomers(connection);
-            JsonArrayBuilder allCustomers = Json.createArrayBuilder();
-            for (CustomerDTO customer : customerDTOList) {
-                String id = customer.getId();
-                String name = customer.getName();
-                String address = customer.getAddress();
-                Double salary = customer.getSalary();
+        String function = req.getParameter("function");
 
-                JsonObjectBuilder customerpart2 = Json.createObjectBuilder();
+        if (function.equals("getAll")) {
+            try (Connection connection = connectionPool.getConnection()) {
+                // Use the connection to interact with the database
+                ArrayList<CustomerDTO> customerDTOList = customerBO.getAllCustomers(connection);
+                JsonArrayBuilder allCustomers = Json.createArrayBuilder();
+                for (CustomerDTO customer : customerDTOList) {
+                    String id = customer.getId();
+                    String name = customer.getName();
+                    String address = customer.getAddress();
+                    Double salary = customer.getSalary();
 
-                customerpart2.add("id",id);
-                customerpart2.add("name", name);
-                customerpart2.add("address",address);
-                customerpart2.add("salary", salary);
-                allCustomers.add(customerpart2.build());
-                System.out.println(id);
+                    JsonObjectBuilder customerpart2 = Json.createObjectBuilder();
+
+                    customerpart2.add("id", id);
+                    customerpart2.add("name", name);
+                    customerpart2.add("address", address);
+                    customerpart2.add("salary", salary);
+                    allCustomers.add(customerpart2.build());
+                    System.out.println(id);
+                }
+                // Convert the data to JSON using JSON-B
+                resp.addHeader("Content-Type", "application/json");
+                JsonObjectBuilder responseObject = Json.createObjectBuilder();
+                responseObject.add("state", "OK");
+                responseObject.add("message", "Data retrieved successfully");
+                responseObject.add("data", allCustomers);
+
+                try (PrintWriter out = resp.getWriter()) {
+                    out.print(responseObject.build());
+                }
+
+            } catch (SQLException | JsonbException e) {
+                // Handle exceptions and send an error response
+                resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
             }
-            // Convert the data to JSON using JSON-B
-            resp.addHeader("Content-Type", "application/json");
-            JsonObjectBuilder responseObject = Json.createObjectBuilder();
-            responseObject.add("state", "OK");
-            responseObject.add("message", "Data retrieved successfully");
-            responseObject.add("data", allCustomers);
+        } else if(function.equals("getById")){
+            String selectedId = req.getParameter("selectedId");
+            if (selectedId != null) {
+                try (Connection connection = connectionPool.getConnection()) {
+                    CustomerDTO orderDTO = customerBO.getCustomerById(connection, selectedId);
 
-            try (PrintWriter out = resp.getWriter()) {
-                out.print(responseObject.build());
+                    Jsonb jsonb = JsonbBuilder.create();
+                    String json = jsonb.toJson(orderDTO);
+                    resp.getWriter().write(json);
+                } catch (JsonbException e) {
+                    resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
+                } catch (IOException | SQLException e) {
+                    resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
+                }
+            } else {
+                resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "No customer ID provided");
             }
-
-        } catch (SQLException | JsonbException e) {
-            // Handle exceptions and send an error response
-            resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
         }
+
+
     }
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String id = req.getParameter("id");

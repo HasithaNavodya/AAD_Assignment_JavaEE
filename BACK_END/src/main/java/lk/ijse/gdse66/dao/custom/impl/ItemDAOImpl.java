@@ -47,34 +47,25 @@ public class ItemDAOImpl implements ItemDAO {
         return CrudUtil.execute(connection, sql, id);
     }
 
+
     @Override
     public Item findBy(Connection connection, String id) throws SQLException {
-        return null;
+        String sql = "SELECT * FROM item WHERE item_id = ?";
+        Item item = new Item();
+        ResultSet rs = CrudUtil.execute(connection, sql, id);
+
+        if(rs.next()) {
+            item.setItemCode(rs.getString(1));
+            item.setItemDescription(rs.getString(2));
+            item.setItemPrice(rs.getDouble(3));
+            item.setItemQty(rs.getInt(4));
+        }
+        return item;
     }
 
     @Override
     public boolean reduceQty(Connection connection, Item item) throws SQLException {
-        return false;
+        String sql = "UPDATE item SET qty = ( qty - ? ) WHERE item_id = ?";
+        return CrudUtil.execute(connection, sql, item.getItemQty(), item.getItemCode());
     }
-
-//    @Override
-//    public Item findBy(Connection connection, String id) throws SQLException {
-//        String sql = "SELECT * FROM item WHERE code = ?";
-//        Item item = new Item();
-//        ResultSet rs = CrudUtil.execute(connection, sql, id);
-//
-//        if(rs.next()) {
-//            item.setCode(rs.getString(1));
-//            item.setName(rs.getString(2));
-//            item.setPrice(rs.getBigDecimal(3));
-//            item.setQty(rs.getInt(4));
-//        }
-//        return item;
-//    }
-
-//    @Override
-//    public boolean reduceQty(Connection connection, Item item) throws SQLException {
-//        String sql = "UPDATE item SET qty = ( qty - ? ) WHERE code = ?";
-//        return CrudUtil.execute(connection, sql, item.getQty(), item.getCode());
-//    }
 }

@@ -50,18 +50,13 @@ public class CustomerBOImpl implements CustomerBO {
 
     @Override
     public CustomerDTO getCustomerById(Connection connection, String id) throws SQLException {
-        return null;
-    }
+        Customer customer = customerDAO.findBy(connection, id);
 
-//    @Override
-//    public CustomerDTO getCustomerById(Connection connection, String id) throws SQLException {
-//        Customer customer = customerDAO.findBy(connection, id);
-//
-//        return new CustomerDTO(
-//                customer.getId(),
-//                customer.getName(),
-//                customer.getAddress(),
-//                customer.getContact()
-//        );
-//    }
+        return new CustomerDTO(
+                customer.getId(),
+                customer.getName(),
+                customer.getAddress(),
+                customer.getSalary()
+        );
+    }
 }

@@ -2,6 +2,8 @@ package lk.ijse.gdse66.bo;
 
 import lk.ijse.gdse66.bo.custom.impl.CustomerBOImpl;
 import lk.ijse.gdse66.bo.custom.impl.ItemBOImpl;
+import lk.ijse.gdse66.bo.custom.impl.OrderBOImpl;
+import lk.ijse.gdse66.bo.custom.impl.OrderDetailsBOImpl;
 //import lk.ijse.gdse66.bo.custom.impl.ItemBOImpl;
 //import lk.ijse.gdse66.bo.custom.impl.OrderBOImpl;
 //import lk.ijse.gdse66.bo.custom.impl.OrderDetailsBOImpl;
@@ -28,10 +30,10 @@ public class BOFactory {
                 return (T) new CustomerBOImpl();
             case ITEM_BO:
                 return (T) new ItemBOImpl();
-//            case ORDER_BO:
-//                return (T) new OrderBOImpl();
-//            case ORDER_DETAIL_BO:
-//                return (T) new OrderDetailsBOImpl();
+            case ORDER_BO:
+                return (T) new OrderBOImpl();
+            case ORDER_DETAIL_BO:
+                return (T) new OrderDetailsBOImpl();
             default:
                 return null;
         }

@@ -1,9 +1,12 @@
 package lk.ijse.gdse66.api;
 
 import jakarta.json.*;
+import jakarta.json.bind.Jsonb;
+import jakarta.json.bind.JsonbBuilder;
 import jakarta.json.bind.JsonbException;
 import lk.ijse.gdse66.bo.BOFactory;
 import lk.ijse.gdse66.bo.custom.ItemBO;
+import lk.ijse.gdse66.dto.CustomerDTO;
 import lk.ijse.gdse66.dto.ItemDTO;
 
 import javax.naming.InitialContext;
@@ -75,40 +78,65 @@ public class ItemServlet extends HttpServlet {
     }
 
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        try (Connection connection = connectionPool.getConnection()) {
-            // Use the connection to interact with the database
-            ArrayList<ItemDTO> itemDtoList = itemBO.getAllItems(connection);
-            JsonArrayBuilder allItems = Json.createArrayBuilder();
-            for (ItemDTO item : itemDtoList) {
-                String code = item.getItemCode();
-                String description = item.getItemDescription();
-                double salary = item.getItemPrice();
-                int qty = item.getItemQty();
+        String function = req.getParameter("function");
+        if (function.equals("getAll")) {
+            try (Connection connection = connectionPool.getConnection()) {
+                ArrayList<ItemDTO> itemDtoList = itemBO.getAllItems(connection);
+                JsonArrayBuilder allItems = Json.createArrayBuilder();
+                for (ItemDTO item : itemDtoList) {
+                    String code = item.getItemCode();
+                    String description = item.getItemDescription();
+                    double price = item.getItemPrice(); // Changed from salary to price
+                    int qty = item.getItemQty();
 
-                JsonObjectBuilder customerpart2 = Json.createObjectBuilder();
+                    JsonObjectBuilder itemJson = Json.createObjectBuilder();
+                    itemJson.add("code", code);
+                    itemJson.add("description", description);
+                    itemJson.add("price", price); // Changed from salary to price
+                    itemJson.add("qty", qty);
+                    allItems.add(itemJson);
+                    System.out.println(code);
+                }
 
-                customerpart2.add("code",code);
-                customerpart2.add("description", description);
-                customerpart2.add("salary",salary);
-                customerpart2.add("qty", qty);
-                allItems.add(customerpart2.build());
-                System.out.println(code);
+                resp.addHeader("Content-Type", "application/json");
+                JsonObjectBuilder responseObject = Json.createObjectBuilder();
+                responseObject.add("state", "OK");
+                responseObject.add("message", "Data retrieved successfully");
+                responseObject.add("data", allItems.build()); // Convert array to JsonArray
+
+                try (PrintWriter out = resp.getWriter()) {
+                    out.print(responseObject.build());
+                }
+            } catch (SQLException | JsonbException e) {
+                resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
             }
-            // Convert the data to JSON using JSON-B
-            resp.addHeader("Content-Type", "application/json");
-            JsonObjectBuilder responseObject = Json.createObjectBuilder();
-            responseObject.add("state", "OK");
-            responseObject.add("message", "Data retrieved successfully");
-            responseObject.add("data", allItems);
+        }else if (function.equals("getById")) {
+            String selectedCode = req.getParameter("selectedcode");
+            if (selectedCode != null) {
+                try (Connection connection = connectionPool.getConnection()) {
+                    ItemDTO itemDTO = itemBO.getItemByCode(connection, selectedCode);
+                    if (itemDTO != null) {
+                        JsonObjectBuilder itemJson = Json.createObjectBuilder();
+                        itemJson.add("code", itemDTO.getItemCode());
+                        itemJson.add("description", itemDTO.getItemDescription());
+                        itemJson.add("price", itemDTO.getItemPrice());
+                        itemJson.add("qty", itemDTO.getItemQty());
 
-            try (PrintWriter out = resp.getWriter()) {
-                out.print(responseObject.build());
+                        resp.setContentType("application/json");
+                        try (PrintWriter out = resp.getWriter()) {
+                            out.print(itemJson.build());
+                        }
+                    } else {
+                        resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Item not found with code: " + selectedCode);
+                    }
+                } catch (SQLException e) {
+                    resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
+                }
+            } else {
+                resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "No item code provided");
             }
-
-        } catch (SQLException | JsonbException e) {
-            // Handle exceptions and send an error response
-            resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
         }
+
     }
 
     protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
